@@ -13,7 +13,7 @@ def down_folder_Secondary(output,input_path):
     if 'primary_CT.txt' not in files:
         output.append(input_path)
     for directory in folders:
-        new_directory = input_path + directory + '\\'
+        new_directory = os.path.join(input_path,directory)
         down_folder_Secondary(output,new_directory)
     return output
 def down_folder_primary(output,input_path):
@@ -26,13 +26,13 @@ def down_folder_primary(output,input_path):
     if 'primary_CT.txt' in files:
         output.append(input_path)
     for directory in folders:
-        new_directory = input_path + directory + '\\'
+        new_directory = os.path.join(input_path,directory)
         down_folder_primary(output,new_directory)
     return output
 class Make_Segments_Of_Non_Primary():
-    def __init__(self, MRNs = []):
+    def __init__(self, MRNs = [],path_base=''):
         self.patient_db = get_current("PatientDB")
-        self.path_base = '\\\\mymdafiles\\di_data1\\Morfeus\\bmanderson\\Pacs_copy_3\\'
+        self.path_base = path_base
         self.no_primary_base = '\\\\mymdafiles\\di_data1\\Morfeus\\bmanderson\\Pacs_No_Primary\\'
         self.temp_color_list = []
         self.color_list = ['#800000','#9A6324','#ffe119','#e6194B','#f58321','#4363d8','#911eb4','#a9a9a9']
@@ -47,8 +47,8 @@ class Make_Segments_Of_Non_Primary():
                 continue
     def run_on_pat(self):
         found_primary = True
-        self.path = self.path_base + self.MRN + '\\'
-        if os.path.exists(self.path + 'made_segments.txt') and not self.redo:
+        self.path = os.path.join(self.path_base,self.MRN)
+        if os.path.exists(os.path.join(self.path,'made_segments.txt')) and not self.redo:
             return None
         try:
             self.ChangePatient_8B()
@@ -102,7 +102,7 @@ class Make_Segments_Of_Non_Primary():
             This is to make a thresholded roi called 'Threshold_Liver_Segment on each of the non-primary images
             '''
             if not primary_exams:
-                fid = open(self.no_primary_base + self.MRN, 'w+')
+                fid = open(os.path.join(self.no_primary_base,self.MRN + '.txt'), 'w+')
                 fid.close()
                 self.patient.Save()
                 found_primary = False
@@ -139,7 +139,7 @@ class Make_Segments_Of_Non_Primary():
         if found_primary:
             if not os.path.exists(self.path):
                 os.makedirs(self.path)
-            fid = open(self.path + 'made_segments.txt', 'w+')
+            fid = open(os.path.join(self.path,'made_segments.txt'), 'w+')
             fid.close()
     def make_folder(self, exams, name):
         for examination_group in self.case.ExaminationGroups:
@@ -192,4 +192,4 @@ if __name__ == '__main__':
     MRNs = []
     for _, MRNs, _ in os.walk(path):
         break
-    Make_Segments_Of_Non_Primary(MRNs)
+    Make_Segments_Of_Non_Primary(MRNs,path)
