@@ -93,7 +93,7 @@ class Down_Folder_new(object):
 
 
 def main():
-    Down_Folder(r'K:\Morfeus\BMAnderson\Pacs_Brandy_Patients')
+    pass
 
 
 if __name__ == '__main__':

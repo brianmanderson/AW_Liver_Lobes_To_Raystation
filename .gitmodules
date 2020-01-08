@@ -1,0 +1,6 @@
+[submodule "Dicom_RT_and_Images_to_Mask"]
+	path = Dicom_RT_and_Images_to_Mask
+	url = https://github.com/brianmanderson/Dicom_RT_and_Images_to_Mask.git
+[submodule "Import_Patients_To_Raystation"]
+	path = Import_Patients_To_Raystation
+	url = https://github.com/brianmanderson/Import_Patients_To_Raystation.git
