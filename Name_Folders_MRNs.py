@@ -1,6 +1,8 @@
 import pydicom
 import os
-import multiprocessing as mp
+from threading import Thread
+from multiprocessing import cpu_count
+from queue import *
 
 
 def moveTree(sourceRoot, destRoot):
@@ -59,16 +61,35 @@ def run_main(A):
     return None
 
 
+def worker_def(q):
+    objective = run_main
+    while True:
+        item = q.get()
+        if item is None:
+            break
+        else:
+            objective(item)
+            q.task_done()
+
+
 class Down_Folder(object):
     def __init__(self,input_path):
-        pool = mp.Pool(processes=8)
+        thread_count = int(cpu_count() * .75 - 1)
+        print('Running on {} threads'.format(thread_count))
+        q = Queue(maxsize=thread_count)
+        threads = []
+        for worker in range(thread_count):
+            t = Thread(target=worker_def, args=(q,))
+            t.start()
+            threads.append(t)
         self.input_path = input_path
         header_folders = []
-        file_list = []
         for _, header_folders, files in os.walk(input_path):
             break
-        pool.map(run_main,
-                 ([input_path,header_folder] for header_folder in header_folders))
+        for header_folder in header_folders:
+            q.put([input_path,header_folder])
+        for i in range(thread_count):
+            q.put(None)
 
 
 def delete_empty_folder(sourceRoot):
@@ -92,9 +113,5 @@ class Down_Folder_new(object):
                 delete_empty_folder(os.path.join(root,header_folder))
 
 
-def main():
-    pass
-
-
 if __name__ == '__main__':
-    main()
+    pass
